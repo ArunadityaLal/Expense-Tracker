@@ -22,7 +22,7 @@ const Groups = () => {
 
       try {
         const response = await fetch(
-          `https://expense-tracker-204b0-default-rtdb.firebaseio.com/${uid}/split-smart.json`,
+          `https://expense-tracker-7880f-default-rtdb.firebaseio.com/${uid}/split-smart.json`,
         );
 
         if (!response.ok) {
@@ -61,7 +61,7 @@ const Groups = () => {
 
     try {
       const response = await fetch(
-        `https://expense-tracker-204b0-default-rtdb.firebaseio.com/${uid}/split-smart/${name}.json`,
+        `https://expense-tracker-7880f-default-rtdb.firebaseio.com/${uid}/split-smart/${name}.json`,
         { method: "DELETE" },
       );
 

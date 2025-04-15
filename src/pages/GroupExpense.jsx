@@ -35,7 +35,7 @@ const GroupExpense = () => {
 
       try {
         const response = await fetch(
-          `https://expense-tracker-204b0-default-rtdb.firebaseio.com/${uid}/split-smart/${groupName}.json`,
+          `https://expense-tracker-7880f-default-rtdb.firebaseio.com/${uid}/split-smart/${groupName}.json`,
         );
 
         if (!response.ok) {
@@ -58,7 +58,6 @@ const GroupExpense = () => {
               for (const key in value) {
                 const expense = value[key];
 
-                // Check if the expense has the required fields
                 if (
                   expense &&
                   expense.name &&
@@ -91,14 +90,16 @@ const GroupExpense = () => {
     fetchGroupExpenses();
   }, [groupName, date]);
 
-  const handleDeleteExpense = async () => {
+  
+
+  const handleDeleteExpense = async (expenseId) => {
     
 
     const uid = JSON.parse(localStorage.getItem("tokenId"));
 
     try {
       const response = await fetch(
-        `https://expense-tracker-204b0-default-rtdb.firebaseio.com/${uid}/split-smart/${groupName}/${date}/${expenseId}.json`,
+        `https://expense-tracker-7880f-default-rtdb.firebaseio.com/${uid}/split-smart/${groupName}/${date}/${expenseId}.json`,
         {
           method: "DELETE",
         },

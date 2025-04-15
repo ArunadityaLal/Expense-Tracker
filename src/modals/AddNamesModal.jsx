@@ -38,6 +38,7 @@ const AddNamesModal = ({setAddNames, groupName , onSaveSuccess}) => {
         
         if (data.names) {
           setMemberNames(data.names);
+          console.log(data.names);
         } 
         else{
           setMemberNames(Array(members).fill(""));
@@ -47,8 +48,8 @@ const AddNamesModal = ({setAddNames, groupName , onSaveSuccess}) => {
       }
     }     
     fetchNames();
-  },[])
-
+  },[groupName,members])
+       
   const handleEnter = async () => {
     try {
       const uidString = localStorage.getItem("tokenId");
@@ -66,7 +67,7 @@ const AddNamesModal = ({setAddNames, groupName , onSaveSuccess}) => {
     }
     if (memberNames.every(name => name !== "")) {
       navigate(`/group/${groupName}`, { state: { name, members, memberNames } });
-      setAddNames(false);
+      setAddNames(false); 
       onSaveSuccess();
     } else {
       alert("Please fill in all member names.");

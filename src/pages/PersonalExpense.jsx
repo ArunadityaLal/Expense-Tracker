@@ -16,7 +16,7 @@ const PersonalExpense = () => {
 
       try {
         const response = await fetch(
-          `https://expense-tracker-204b0-default-rtdb.firebaseio.com/${uid}.json`,
+          `https://expense-tracker-7880f-default-rtdb.firebaseio.com/${uid}.json`,
         );
 
         if (!response.ok) {
@@ -77,7 +77,7 @@ const PersonalExpense = () => {
 
     try {
       const response = await fetch(
-        `https://expense-tracker-204b0-default-rtdb.firebaseio.com/${uid}.json`,
+        `https://expense-tracker-7880f-default-rtdb.firebaseio.com/${uid}.json`,
         {
           method: "POST",
           body: JSON.stringify({ name, amount, category, date }),
@@ -116,7 +116,7 @@ const PersonalExpense = () => {
 
     try {
       await fetch(
-        `https://expense-tracker-204b0-default-rtdb.firebaseio.com/${uid}/${id}.json`,
+        `https://expense-tracker-7880f-default-rtdb.firebaseio.com/${uid}/${id}.json`,
         {
           method: "DELETE",
         },

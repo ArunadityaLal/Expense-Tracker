@@ -16,7 +16,7 @@ const Splitwise = ({ memberNames, paidBy, amount }) => {
       <h2>Expense Settlement</h2>
       <p>Members: {memberNames.join(", ")}</p>
       <ul>
-        {settlementLogs.map((log, index) => (
+        {settlementLogs.map((log, index) => ( 
           <li key={index}>{log}</li>
         ))}
       </ul>
