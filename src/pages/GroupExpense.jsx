@@ -126,105 +126,163 @@ const GroupExpense = () => {
     setAddNames(true);
   };
 
+  const totalAmount = groupExpenses.reduce((total, expense) => total + parseFloat(expense.amount || 0), 0);
+
   return (
-    <div className="flex min-h-screen flex-col items-center bg-gray-100 p-20">
-      <div className="mb-6 rounded-lg bg-blue-500 p-4 text-white">
-        <h2 className="text-2xl font-bold">{groupName}</h2>
-      </div>
-
-      {loading ? (
-        <p className="text-center text-lg text-gray-400">Loading expenses...</p>
-      ) : groupExpenses.length === 0 ? (
-        <p className="text-center text-lg text-gray-400">
-          No Expenses Added yet.
-        </p>
-      ) : (
-        <div className="w-full max-w-lg">
-          {sortedGroupExpenses?.map((item, index) => (
-            <div key={index} className="mb-4 rounded-lg bg-white p-4 shadow-md">
-              <h3 className="text-lg font-semibold">
-                {item.name || "Unnamed Expense"}
-              </h3>
-              <ul className="list-none p-0">
-                <li className="flex items-center justify-between py-2">
-                  <div className="flex flex-col">
-                    <span>{`€${item.amount ?? "0.00"}`}</span>
-                    <span className="text-sm text-gray-500">
-                      Paid by {item.paidBy || "Unknown"}
-                    </span>
-                  </div>
-                  <p>{item.date}</p>
-                  <button
-                    className="ml-4 text-red-500 hover:text-red-700"
-                    onClick={() => handleDeleteExpense(item.date, item.id)}
-                    aria-label={`Delete expense ${item.name}`}
-                  >
-                    <FiTrash2 className="h-5 w-5" />
-                  </button>
-                </li>
-              </ul>
-            </div>
-          ))}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-20">
+      <div className="max-w-4xl mx-auto">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-green-500 to-teal-600 rounded-full mb-6 shadow-lg">
+            <span className="text-3xl">👥</span>
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent mb-4">
+            {groupName}
+          </h1>
+          <p className="text-gray-600 text-lg">Track and manage group expenses</p>
         </div>
-      )}
 
-      {groupExpenses.length > 0 && (
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-2"></div>
+            <div className="p-6 text-center">
+              <div className="text-3xl font-bold text-gray-800">€{totalAmount.toFixed(2)}</div>
+              <div className="text-sm text-gray-600 mt-1">Total Spent</div>
+            </div>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-green-500 to-teal-600 h-2"></div>
+            <div className="p-6 text-center">
+              <div className="text-3xl font-bold text-gray-800">{groupExpenses.length}</div>
+              <div className="text-sm text-gray-600 mt-1">Expenses</div>
+            </div>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-orange-500 to-red-600 h-2"></div>
+            <div className="p-6 text-center">
+              <div className="text-3xl font-bold text-gray-800">{memberNames.length || 0}</div>
+              <div className="text-sm text-gray-600 mt-1">Members</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Expenses List */}
+        {loading ? (
+          <div className="text-center py-16">
+            <div className="inline-block w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-lg text-gray-600">Loading expenses...</p>
+          </div>
+        ) : groupExpenses.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mb-6">
+              <span className="text-4xl text-gray-400">📋</span>
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-2">No expenses yet</h3>
+            <p className="text-gray-600 mb-8">Start adding expenses to track group spending</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Recent Expenses</h2>
+            {sortedGroupExpenses?.map((item, index) => (
+              <div key={index} className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 overflow-hidden group hover:shadow-xl transition-all duration-300">
+                <div className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="bg-gradient-to-r from-green-500 to-teal-600 rounded-xl p-3">
+                        <span className="text-white text-xl">💰</span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {item.name || "Unnamed Expense"}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Paid by <span className="font-medium text-blue-600">{item.paidBy || "Unknown"}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-gray-800">€{item.amount ?? "0.00"}</div>
+                        <div className="text-sm text-gray-500">{item.date}</div>
+                      </div>
+                      <button
+                        className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
+                        onClick={() => handleDeleteExpense(item.date, item.id)}
+                        aria-label={`Delete expense ${item.name}`}
+                      >
+                        <FiTrash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Floating Action Buttons */}
+        {groupExpenses.length > 0 && (
+          <button
+            onClick={() => setShowSettleUp(true)}
+            className="fixed bottom-8 left-1/2 flex -translate-x-1/2 transform items-center justify-center gap-3 rounded-full bg-gradient-to-r from-green-500 to-teal-600 px-8 py-4 text-white shadow-2xl hover:from-green-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105"
+          >
+            <FaFileInvoiceDollar className="h-5 w-5" />
+            <span className="font-semibold">Settle Up</span>
+          </button>
+        )}
+
         <button
-          onClick={() => setShowSettleUp(true)}
-          className="fixed bottom-8 left-1/2 flex -translate-x-1/2 transform items-center justify-center gap-2 rounded-full bg-green-500 px-6 py-3 text-white shadow-lg hover:bg-green-600"
+          onClick={() => setShowModal(true)}
+          className="fixed bottom-8 right-8 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-2xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-110 transition-all duration-200"
         >
-          <FaFileInvoiceDollar className="h-5 w-5" />
-          <span>Settle Up</span>
+          <span className="text-2xl font-light">+</span>
         </button>
-      )}
-      {showSettleUp && (
-        <SettleUpModal
-          groupExpenses={groupExpenses}
-          memberNames={memberNames}
-          closeModal={() => setShowSettleUp(false)}
-        />
-      )}
 
-      <button
-        onClick={() => setShowModal(true)}
-        className="fixed bottom-8 right-8 flex h-14 w-14 items-center justify-center rounded-full bg-black text-2xl text-white shadow-lg"
-      >
-        +
-      </button>
+        <button
+          onClick={openNamesModal}
+          className={`fixed bottom-28 right-8 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-xl hover:from-orange-600 hover:to-red-700 transform hover:scale-110 transition-all duration-200 ${isDisabled ? "cursor-not-allowed opacity-50" : ""}`}
+          disabled={isDisabled}
+        >
+          <TiUserAdd className="h-6 w-6" />
+        </button>
 
-      {showModal && (
-        <AddExpenseModal
-          date={date}
-          groupName={groupName}
-          setDate={setDate}
-          itemName={itemName}
-          setItemName={setItemName}
-          amount={amount}
-          setAmount={setAmount}
-          paidBy={paidBy}
-          setPaidBy={setPaidBy}
-          memberNames={memberNames}
-          groupExpenses={groupExpenses}
-          setShowModal={setShowModal}
-          setGroupExpenses={setGroupExpenses}
-          closeModal={() => setShowModal(false)}
-        />
-      )}
+        {/* Modals */}
+        {showSettleUp && (
+          <SettleUpModal
+            groupExpenses={groupExpenses}
+            memberNames={memberNames}
+            closeModal={() => setShowSettleUp(false)}
+          />
+        )}
 
-      <button
-        onClick={openNamesModal}
-        className={`fixed bottom-24 right-9 flex h-14 w-14 items-center justify-center rounded-full bg-blue-500 text-white shadow-lg ${isDisabled ? "cursor-not-allowed opacity-50" : ""}`}
-        disabled={isDisabled}
-      >
-        <TiUserAdd className="h-6 w-6" />
-      </button>
-      {addNames && (
-        <AddNamesModal
-          setAddNames={setAddNames}
-          groupName={groupName}
-          onSaveSuccess={() => setIsDisabled(true)}
-        />
-      )}
+        {showModal && (
+          <AddExpenseModal
+            date={date}
+            groupName={groupName}
+            setDate={setDate}
+            itemName={itemName}
+            setItemName={setItemName}
+            amount={amount}
+            setAmount={setAmount}
+            paidBy={paidBy}
+            setPaidBy={setPaidBy}
+            memberNames={memberNames}
+            groupExpenses={groupExpenses}
+            setShowModal={setShowModal}
+            setGroupExpenses={setGroupExpenses}
+            closeModal={() => setShowModal(false)}
+          />
+        )}
+
+        {addNames && (
+          <AddNamesModal
+            setAddNames={setAddNames}
+            groupName={groupName}
+            onSaveSuccess={() => setIsDisabled(true)}
+          />
+        )}
+      </div>
     </div>
   );
 };
