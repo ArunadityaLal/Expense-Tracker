@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import AddExpenseModal from "../modals/AddExpenseModal";
 import { FiTrash2 } from "react-icons/fi";
@@ -9,7 +9,7 @@ import AddNamesModal from "../modals/AddNamesModal";
 
 const GroupExpense = () => {
   const { state } = useLocation();
-  const { name = "Unknown Group", memberNames = [] } = state || {};
+  const { memberNames = [] } = state || {};
   const { name: groupName } = useParams();
 
   const [showModal, setShowModal] = useState(false);
@@ -88,7 +88,7 @@ const GroupExpense = () => {
 
     setLoading(true);
     fetchGroupExpenses();
-  }, [groupName, date]);
+  }, [groupName, date, memberNames]);
 
   
 
