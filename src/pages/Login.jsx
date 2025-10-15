@@ -1,44 +1,45 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom"; // For navigation
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 import CreateAccountModal, { SignupForm } from "../modals/CreateAccountModal";
 
-// eslint-disable-next-line react/prop-types
-const Login = ({ setIsLoggedIn }) => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate(); 
+  const [loading, setLoading] = useState(false);
+  
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDSaSs9KnjA81xW6JGQA1koOB_t6W6JF6k",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            email: email,
-            password: password,
-            returnSecureToken: true,
-          }),
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+    
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
 
-      const data = await response.json();
-      if (response.ok) {
-        alert("Login Successful");
-        setIsLoggedIn(true); 
-        localStorage.setItem("isLoggedIn",true);
-        localStorage.setItem("tokenId", JSON.stringify(data.localId));
-        navigate("/"); 
-      } else {
-        alert(data.error.message || "Something went wrong");
+    setLoading(true);
+    
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        toast.error(error.message || "Login failed");
+        return;
       }
-    } catch (Error) {
-      console.log(Error);
+      
+      toast.success("Login successful!");
+      navigate("/");
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,6 +77,7 @@ const Login = ({ setIsLoggedIn }) => {
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm"
                     placeholder="Enter your email"
                     required
+                    disabled={loading}
                   />
                   <div className="absolute right-3 top-3">
                     <span className="text-white/40">📧</span>
@@ -93,6 +95,7 @@ const Login = ({ setIsLoggedIn }) => {
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm pr-12"
                     placeholder="Enter your password"
                     required
+                    disabled={loading}
                   />
                   {password && (
                     <button
@@ -108,9 +111,10 @@ const Login = ({ setIsLoggedIn }) => {
 
               <button 
                 type="submit" 
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                Sign In
+                {loading ? "Signing in..." : "Sign In"}
               </button>
             </form>
 

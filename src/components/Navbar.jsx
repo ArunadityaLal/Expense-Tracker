@@ -1,15 +1,21 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 import expenses from "../assets/expenses.png";
 
-// eslint-disable-next-line react/prop-types
-const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
+const Navbar = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    setIsLoggedIn(false); 
-    alert("Logged out successfully");
-    navigate("/"); 
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast.success("Logged out successfully!");
+      navigate("/");
+    } catch (error) {
+      toast.error("Failed to logout");
+      console.error("Logout error:", error);
+    }
   };
 
   return (
@@ -36,7 +42,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
 
           {/* Navigation Links */}
           <ul className="flex items-center space-x-8">
-            {isLoggedIn ? (
+            {user ? (
               <>
                 <li>
                   <Link 

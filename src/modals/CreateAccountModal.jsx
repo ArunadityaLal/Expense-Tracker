@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import icons
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
-let users = JSON.parse(localStorage.getItem("users")) || [];
-
-// eslint-disable-next-line react/prop-types
 const CreateAccountModal = ({ isOpen, onClose, children, title }) => {
   if (!isOpen) return null;
 
@@ -35,49 +34,50 @@ const CreateAccountModal = ({ isOpen, onClose, children, title }) => {
   );
 };
 
-const handleCreateAccount = async (e, email, password, name, onSubmit) => {
-  e.preventDefault();
-  try {
-    const res = await fetch(
-      "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDSaSs9KnjA81xW6JGQA1koOB_t6W6JF6k",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          email,
-          password,
-          returnSecureToken: true,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const data = await res.json();
-    users.push({
-      id: data.idToken,
-      name,
-    });
-    localStorage.setItem("users", JSON.stringify(users));
-    if (onSubmit) onSubmit();
-    alert("Account Created");
-  } catch (error) {
-    console.error("Error:", error);
-  }
-};
-
-// eslint-disable-next-line react/prop-types
 export const SignupForm = ({ onSubmit, onClose }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  const { signUp } = useAuth();
+
+  const handleCreateAccount = async (e) => {
+    e.preventDefault();
+    
+    if (!email || !password || !fullName) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await signUp(email, password, fullName);
+      
+      if (error) {
+        toast.error(error.message || "Failed to create account");
+        return;
+      }
+      
+      toast.success("Account created! Please check your email to verify.");
+      if (onSubmit) onSubmit();
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <form
-      onSubmit={(e) => handleCreateAccount(e, email, password, name, onSubmit)}
-      className="space-y-6"
-    >
+    <form onSubmit={handleCreateAccount} className="space-y-6">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-3">
           <span className="flex items-center gap-2">
@@ -87,11 +87,12 @@ export const SignupForm = ({ onSubmit, onClose }) => {
         </label>
         <input
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
           className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:bg-white"
           placeholder="Enter your full name"
           required
+          disabled={loading}
         />
       </div>
 
@@ -109,6 +110,7 @@ export const SignupForm = ({ onSubmit, onClose }) => {
           className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:bg-white"
           placeholder="Enter your email"
           required
+          disabled={loading}
         />
       </div>
 
@@ -125,8 +127,9 @@ export const SignupForm = ({ onSubmit, onClose }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:bg-white pr-12"
-            placeholder="Create a strong password"
+            placeholder="Create a strong password (min 6 characters)"
             required
+            disabled={loading}
           />
           {password && (
             <button
@@ -145,15 +148,17 @@ export const SignupForm = ({ onSubmit, onClose }) => {
         <button
           type="button"
           onClick={onClose}
-          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-medium transition-all duration-200"
+          disabled={loading}
+          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-medium transition-all duration-200 disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="flex-1 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white py-3 px-6 rounded-xl font-medium transform hover:scale-105 transition-all duration-200 shadow-lg"
+          disabled={loading}
+          className="flex-1 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white py-3 px-6 rounded-xl font-medium transform hover:scale-105 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         >
-          Create Account
+          {loading ? "Creating..." : "Create Account"}
         </button>
       </div>
 

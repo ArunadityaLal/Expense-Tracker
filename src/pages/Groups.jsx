@@ -1,79 +1,64 @@
 import { useEffect, useState } from "react";
 import { FiSearch, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 import AddGroupModal from "../modals/AddGroupModal";
 
 const Groups = () => {
+  const { user } = useAuth();
   const [groups, setGroups] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const getGrpExpense = async () => {
-      const uidString = localStorage.getItem("tokenId");
-      if (!uidString) {
-        console.error("User token not found.");
-        return;
-      }
+    if (user) {
+      fetchGroups();
+    }
+  }, [user]);
 
-      const uid = JSON.parse(uidString);
+  const fetchGroups = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('groups')
+        .select('*')
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false });
 
-      try {
-        const response = await fetch(
-          `https://expense-tracker-7880f-default-rtdb.firebaseio.com/${uid}/split-smart.json`,
-        );
+      if (error) throw error;
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch group expenses");
-        }
+      setGroups(data || []);
+    } catch (error) {
+      console.error('Error fetching groups:', error);
+      toast.error('Failed to load groups');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        const data = await response.json();
-        const grp = [];
-         
-        for (const key in data) {
-          const value = data[key];
-          for (const subKey in value) {
-           if(value[subKey].members !== undefined){
-            const item = value[subKey].members;
-            grp.push({ name: key, members: item });
-           }
-          }
-        }
-
-        setGroups(grp);
-      } catch (error) {
-        console.error("Error fetching group expenses:", error);
-      }
-    };
-    getGrpExpense();
-  }, []);
-
-  const deleteGroup = async (name) => {
-    const uidString = localStorage.getItem("tokenId");
-    if (!uidString) {
-      console.error("User token not found.");
+  const deleteGroup = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete "${name}"? This will delete all associated expenses and members.`)) {
       return;
     }
 
-    const uid = JSON.parse(uidString);
-
     try {
-      const response = await fetch(
-        `https://expense-tracker-7880f-default-rtdb.firebaseio.com/${uid}/split-smart/${name}.json`,
-        { method: "DELETE" },
-      );
+      const { error } = await supabase
+        .from('groups')
+        .delete()
+        .eq('id', id);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete group");
-      }
+      if (error) throw error;
 
-      setGroups((prevGroups) =>
-        prevGroups.filter((group) => group.name !== name),
-      );
+      setGroups((prevGroups) => prevGroups.filter((group) => group.id !== id));
+      toast.success('Group deleted successfully!');
     } catch (error) {
-      console.error("Error deleting group:", error);
+      console.error('Error deleting group:', error);
+      toast.error('Failed to delete group');
     }
   };
 
@@ -92,6 +77,17 @@ const Groups = () => {
     ];
     return colors[index % colors.length];
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-lg text-gray-600">Loading groups...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-20">
@@ -153,9 +149,9 @@ const Groups = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGroups.map((group, index) => (
               <div
-                key={group.name}
-                className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden group hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer"
-                onClick={() => navigate(`/group/${group.name}`, { state: group })}
+                key={group.id}
+                className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden group hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer relative"
+                onClick={() => navigate(`/group/${group.id}`, { state: { group } })}
               >
                 {/* Card Header */}
                 <div className={`bg-gradient-to-r ${getGroupColor(index)} h-2`}></div>
@@ -169,7 +165,7 @@ const Groups = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        deleteGroup(group.name);
+                        deleteGroup(group.id, group.name);
                       }}
                       className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
                     >
@@ -183,7 +179,7 @@ const Groups = () => {
                     </h2>
                     <div className="flex items-center text-gray-600">
                       <span className="text-sm">👤</span>
-                      <span className="ml-2 text-sm font-medium">{group.members} members</span>
+                      <span className="ml-2 text-sm font-medium">{group.member_count} members</span>
                     </div>
                   </div>
                   
@@ -206,7 +202,7 @@ const Groups = () => {
         <AddGroupModal
           showForm={showForm}
           setShowForm={setShowForm}
-          setGroups={setGroups}
+          onGroupAdded={fetchGroups}
         />
 
         {/* Floating Action Button */}
