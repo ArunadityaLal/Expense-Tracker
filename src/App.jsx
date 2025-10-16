@@ -8,6 +8,8 @@ import Login from "./pages/Login";
 import PersonalExpense from "./pages/PersonalExpense";
 import Groups from "./pages/Groups";
 import GroupExpense from "./pages/GroupExpense";
+import LearnMore from "./pages/LearnMore";
+import ContactUs from "./pages/ContactUs";
 import Footer from "./components/Footer";
 
 const ProtectedRoute = ({ children }) => {
@@ -31,6 +33,8 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/learn-more" element={<LearnMore />} />
+          <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
           
           <Route

@@ -215,8 +215,8 @@ const PersonalExpense = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
-      <div className="mx-auto max-w-6xl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 pt-20 px-4">
+      <div className="mx-auto max-w-6xl py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4">
@@ -257,8 +257,7 @@ const PersonalExpense = () => {
 
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                        <DollarSign className="w-4 h-4" />
-                        Amount
+                        ₹ Amount
                       </label>
                       <input
                         type="number"
@@ -353,7 +352,7 @@ const PersonalExpense = () => {
               </div>
               <div className="p-6">
                 <div className="text-3xl font-bold text-gray-900">
-                  ${totalAmount.toFixed(2)}
+                  ₹{totalAmount.toFixed(2)}
                 </div>
                 <p className="text-gray-600 mt-1">
                   {filteredExpenses.length} expense{filteredExpenses.length !== 1 ? 's' : ''}
@@ -411,7 +410,7 @@ const PersonalExpense = () => {
                       <tr key={exp.id} className="hover:bg-gray-50 transition-colors duration-150">
                         <td className="px-6 py-4 text-sm text-gray-900 font-medium">{exp.name}</td>
                         <td className="px-6 py-4 text-sm text-gray-900 font-semibold">
-                          ${parseFloat(exp.amount).toFixed(2)}
+                          ₹{parseFloat(exp.amount).toFixed(2)}
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${categoryColors[exp.category]}`}>

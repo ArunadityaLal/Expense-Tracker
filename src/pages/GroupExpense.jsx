@@ -188,7 +188,7 @@ const GroupExpense = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-20">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto py-12">
         {/* Header Section */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-green-500 to-teal-600 rounded-full mb-6 shadow-lg">
@@ -245,7 +245,7 @@ const GroupExpense = () => {
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-2"></div>
             <div className="p-6 text-center">
-              <div className="text-3xl font-bold text-gray-800">€{totalAmount.toFixed(2)}</div>
+              <div className="text-3xl font-bold text-gray-800">₹{totalAmount.toFixed(2)}</div>
               <div className="text-sm text-gray-600 mt-1">Total Spent</div>
             </div>
           </div>
@@ -321,7 +321,7 @@ const GroupExpense = () => {
                     </div>
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-800">€{parseFloat(item.amount).toFixed(2)}</div>
+                        <div className="text-2xl font-bold text-gray-800">₹{parseFloat(item.amount).toFixed(2)}</div>
                         <div className="text-sm text-gray-500">{item.date}</div>
                       </div>
                       {currentStatus === 'active' && (

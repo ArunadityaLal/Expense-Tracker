@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
     <footer className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 text-white relative overflow-hidden">
@@ -28,24 +30,24 @@ const Footer = () => {
             <div className="text-center">
               <h4 className="text-lg font-semibold text-white mb-4">Quick Links</h4>
               <div className="space-y-3">
-                <a 
-                  href="#" 
+                <Link 
+                  to="/learn-more" 
                   className="block text-purple-200 hover:text-white transition-colors duration-200 hover:bg-white/10 px-3 py-1 rounded-lg"
                 >
                   Learn More
-                </a>
-                <a 
-                  href="#" 
+                </Link>
+                <Link 
+                  to="/about-us" 
                   className="block text-purple-200 hover:text-white transition-colors duration-200 hover:bg-white/10 px-3 py-1 rounded-lg"
                 >
                   About Us
-                </a>
-                <a 
-                  href="#" 
+                </Link>
+                <Link 
+                  to="/contact-us" 
                   className="block text-purple-200 hover:text-white transition-colors duration-200 hover:bg-white/10 px-3 py-1 rounded-lg"
                 >
                   Contact Us
-                </a>
+                </Link>
               </div>
             </div>
             
@@ -76,7 +78,7 @@ const Footer = () => {
           </div>
           
           {/* Features Highlight */}
-          <div className="border-t border-white/10 pt-8 mb-8">
+          {/* <div className="border-t border-white/10 pt-8 mb-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all duration-300">
                 <div className="text-2xl mb-2">💰</div>
@@ -95,7 +97,7 @@ const Footer = () => {
                 <div className="text-sm text-purple-200">Secure</div>
               </div>
             </div>
-          </div>
+          </div> */}
           
           {/* Bottom Section */}
           <div className="border-t border-white/10 pt-6 text-center">
