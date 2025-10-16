@@ -109,7 +109,57 @@ const GroupExpense = () => {
     }
   };
 
+  const handleStatusChange = async (newStatus) => {
+    try {
+      const { error } = await supabase
+        .from('groups')
+        .update({ status: newStatus })
+        .eq('id', group.id);
+
+      if (error) throw error;
+
+      setGroup({ ...group, status: newStatus });
+      
+      if (newStatus === 'completed') {
+        toast.success('Group marked as completed! 🎉');
+      } else if (newStatus === 'cancelled') {
+        toast.success('Group cancelled');
+      } else {
+        toast.success('Group reactivated!');
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast.error('Failed to update status');
+    }
+  };
+
   const totalAmount = groupExpenses.reduce((total, expense) => total + parseFloat(expense.amount || 0), 0);
+
+  // Status badge styling
+  const getStatusBadge = (status) => {
+    const styles = {
+      active: {
+        bg: 'bg-green-100',
+        text: 'text-green-700',
+        border: 'border-green-300',
+        icon: '✓'
+      },
+      completed: {
+        bg: 'bg-blue-100',
+        text: 'text-blue-700',
+        border: 'border-blue-300',
+        icon: '✓'
+      },
+      cancelled: {
+        bg: 'bg-red-100',
+        text: 'text-red-700',
+        border: 'border-red-300',
+        icon: '✗'
+      }
+    };
+    
+    return styles[status] || styles.active;
+  };
 
   if (loading) {
     return (
@@ -133,6 +183,9 @@ const GroupExpense = () => {
     );
   }
 
+  const currentStatus = group.status || 'active';
+  const statusBadge = getStatusBadge(currentStatus);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-20">
       <div className="max-w-4xl mx-auto">
@@ -144,7 +197,47 @@ const GroupExpense = () => {
           <h1 className="text-5xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent mb-4">
             {group.name}
           </h1>
-          <p className="text-gray-600 text-lg">Track and manage group expenses</p>
+          <p className="text-gray-600 text-lg mb-4">Track and manage group expenses</p>
+          
+          {/* Status Toggle Section */}
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <span className="text-sm font-medium text-gray-600">Status:</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleStatusChange('active')}
+                disabled={currentStatus === 'active'}
+                className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 transform hover:scale-105 border-2 ${
+                  currentStatus === 'active'
+                    ? 'bg-green-100 text-green-700 border-green-300 cursor-default'
+                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {currentStatus === 'active' && '✓ '} Active
+              </button>
+              <button
+                onClick={() => handleStatusChange('completed')}
+                disabled={currentStatus === 'completed'}
+                className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 transform hover:scale-105 border-2 ${
+                  currentStatus === 'completed'
+                    ? 'bg-blue-100 text-blue-700 border-blue-300 cursor-default'
+                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {currentStatus === 'completed' && '✓ '} Completed
+              </button>
+              <button
+                onClick={() => handleStatusChange('cancelled')}
+                disabled={currentStatus === 'cancelled'}
+                className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 transform hover:scale-105 border-2 ${
+                  currentStatus === 'cancelled'
+                    ? 'bg-red-100 text-red-700 border-red-300 cursor-default'
+                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {currentStatus === 'cancelled' && '✗ '} Cancelled
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -171,6 +264,31 @@ const GroupExpense = () => {
             </div>
           </div>
         </div>
+
+        {/* Status Notice for Completed/Cancelled Groups */}
+        {(currentStatus === 'completed' || currentStatus === 'cancelled') && (
+          <div className={`mb-8 rounded-2xl p-6 border-2 ${
+            currentStatus === 'completed' 
+              ? 'bg-blue-50 border-blue-200' 
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{currentStatus === 'completed' ? '🎉' : '⚠️'}</span>
+              <div>
+                <h3 className={`font-bold text-lg ${
+                  currentStatus === 'completed' ? 'text-blue-800' : 'text-red-800'
+                }`}>
+                  {currentStatus === 'completed' ? 'Group Completed' : 'Group Cancelled'}
+                </h3>
+                <p className={currentStatus === 'completed' ? 'text-blue-600' : 'text-red-600'}>
+                  {currentStatus === 'completed' 
+                    ? 'This group has been marked as completed. You can still view expenses and settlements.'
+                    : 'This group has been cancelled. No new expenses can be added.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Expenses List */}
         {groupExpenses.length === 0 ? (
@@ -206,13 +324,15 @@ const GroupExpense = () => {
                         <div className="text-2xl font-bold text-gray-800">€{parseFloat(item.amount).toFixed(2)}</div>
                         <div className="text-sm text-gray-500">{item.date}</div>
                       </div>
-                      <button
-                        className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
-                        onClick={() => handleDeleteExpense(item.id, item.name)}
-                        aria-label={`Delete expense ${item.name}`}
-                      >
-                        <FiTrash2 className="h-5 w-5" />
-                      </button>
+                      {currentStatus === 'active' && (
+                        <button
+                          className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
+                          onClick={() => handleDeleteExpense(item.id, item.name)}
+                          aria-label={`Delete expense ${item.name}`}
+                        >
+                          <FiTrash2 className="h-5 w-5" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -221,33 +341,48 @@ const GroupExpense = () => {
           </div>
         )}
 
-        {/* Floating Action Buttons */}
-        {groupExpenses.length > 0 && memberNames.length > 0 && (
-          <button
-            onClick={() => setShowSettleUp(true)}
-            className="fixed bottom-8 left-1/2 flex -translate-x-1/2 transform items-center justify-center gap-3 rounded-full bg-gradient-to-r from-green-500 to-teal-600 px-8 py-4 text-white shadow-2xl hover:from-green-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105"
-          >
-            <FaFileInvoiceDollar className="h-5 w-5" />
-            <span className="font-semibold">Settle Up</span>
-          </button>
+        {/* Floating Action Buttons - Only show for active groups */}
+        {currentStatus === 'active' && (
+          <>
+            {groupExpenses.length > 0 && memberNames.length > 0 && (
+              <button
+                onClick={() => setShowSettleUp(true)}
+                className="fixed bottom-8 left-1/2 flex -translate-x-1/2 transform items-center justify-center gap-3 rounded-full bg-gradient-to-r from-green-500 to-teal-600 px-8 py-4 text-white shadow-2xl hover:from-green-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105"
+              >
+                <FaFileInvoiceDollar className="h-5 w-5" />
+                <span className="font-semibold">Settle Up</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => setShowModal(true)}
+              disabled={memberNames.length === 0}
+              className="fixed bottom-8 right-8 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-2xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              title={memberNames.length === 0 ? "Add member names first" : "Add expense"}
+            >
+              <span className="text-2xl font-light">+</span>
+            </button>
+
+            <button
+              onClick={() => setAddNames(true)}
+              className="fixed bottom-28 right-8 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-xl hover:from-orange-600 hover:to-red-700 transform hover:scale-110 transition-all duration-200"
+              title="Manage members"
+            >
+              <TiUserAdd className="h-6 w-6" />
+            </button>
+          </>
         )}
 
-        <button
-          onClick={() => setShowModal(true)}
-          disabled={memberNames.length === 0}
-          className="fixed bottom-8 right-8 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-2xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          title={memberNames.length === 0 ? "Add member names first" : "Add expense"}
-        >
-          <span className="text-2xl font-light">+</span>
-        </button>
-
-        <button
-          onClick={() => setAddNames(true)}
-          className="fixed bottom-28 right-8 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-xl hover:from-orange-600 hover:to-red-700 transform hover:scale-110 transition-all duration-200"
-          title="Manage members"
-        >
-          <TiUserAdd className="h-6 w-6" />
-        </button>
+        {/* Settle Up Button - Available for all statuses */}
+        {currentStatus !== 'active' && groupExpenses.length > 0 && memberNames.length > 0 && (
+          <button
+            onClick={() => setShowSettleUp(true)}
+            className="fixed bottom-8 right-8 flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-green-500 to-teal-600 px-8 py-4 text-white shadow-2xl hover:from-green-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105"
+          >
+            <FaFileInvoiceDollar className="h-5 w-5" />
+            <span className="font-semibold">View Settlement</span>
+          </button>
+        )}
 
         {/* Modals */}
         {showSettleUp && (
