@@ -175,8 +175,11 @@ const ProfileModal = ({ isOpen, onClose }) => {
   const firstLetter = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-end items-start z-50 p-4 pt-18 pr-6">
+
+
+<div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-slideDown">
+
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
           <div className="flex justify-between items-center">
