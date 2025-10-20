@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import CreateAccountModal, { SignupForm } from "../modals/CreateAccountModal";
+import ForgotPasswordModal from "../modals/ForgotPasswordModal";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
@@ -109,6 +111,17 @@ const Login = () => {
                 </div>
               </div>
 
+              {/* Forgot Password Link */}
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-blue-300 hover:text-blue-200 font-medium transition-colors duration-200 hover:underline"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+
               <button 
                 type="submit" 
                 disabled={loading}
@@ -131,7 +144,7 @@ const Login = () => {
                 onClick={() => setIsModalOpen(true)}
                 className="text-blue-300 hover:text-blue-200 font-medium transition-colors duration-200 hover:underline"
               >
-                Do not have an account? Create one
+                Don't have an account? Create one
               </button>
             </div>
           </div>
@@ -149,6 +162,7 @@ const Login = () => {
         <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-pink-400/60 rounded-full animate-pulse"></div>
       </div>
 
+      {/* Modals */}
       <CreateAccountModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -161,6 +175,11 @@ const Login = () => {
           onClose={() => setIsModalOpen(false)}
         />
       </CreateAccountModal>
+
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+      />
     </div>
   );
 };

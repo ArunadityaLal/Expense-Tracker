@@ -1,22 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import toast from "react-hot-toast";
 import expenses from "../assets/expenses.png";
+import ProfileDropdown from "./ProfileDropdown";
 
 const Navbar = () => {
-  const navigate = useNavigate();
-  const { user, signOut } = useAuth();
-
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      toast.success("Logged out successfully!");
-      navigate("/");
-    } catch (error) {
-      toast.error("Failed to logout");
-      console.error("Logout error:", error);
-    }
-  };
+  const { user } = useAuth();
 
   return (
     <nav className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 backdrop-blur-xl border-b border-white/10 fixed top-0 left-0 w-full z-50 shadow-2xl">
@@ -65,12 +53,7 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={handleLogout}
-                    className="relative bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-medium px-6 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
-                    <span className="relative z-10">LOGOUT</span>
-                  </button>
+                  <ProfileDropdown />
                 </li>
               </>
             ) : (
